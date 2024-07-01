@@ -1,5 +1,5 @@
 # Spotify Saved Mirror
-A simple tool to mirror saved tracks to public playlist (e.g. make likes public)
+A simple tool to mirror saved tracks to public playlist (i.e. make likes public)
 
 ## Usage
 
