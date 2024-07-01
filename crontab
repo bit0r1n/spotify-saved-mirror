@@ -1,0 +1,1 @@
+0 * * * * cd $MIRROR_SPOTIFY_DIR && ./build/mirror_spotify

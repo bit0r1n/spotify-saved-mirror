@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="NimToolchainService">
+    <option name="activeToolchain" value="$USER_HOME$/.nimble" />
+    <option name="rootPaths">
+      <list>
+        <option value="$USER_HOME$/.nimble" />
+      </list>
+    </option>
+  </component>
+</project>
