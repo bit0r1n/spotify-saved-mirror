@@ -7,7 +7,7 @@ A simple tool to mirror saved tracks to public playlist (i.e. make likes public)
 Run `nimble build` command
 
 ### Running application
-Run `build/mirror_spotify` executable
+Run `build/mirror_spotify` executable (will require `SPOTIFY_ID` and `SPOTIFY_SECRET` for updating access token)
 
 For automatic update you will need to configure `crontab` (in case of Linux) or something else to run application periodically
 
