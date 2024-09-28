@@ -83,7 +83,7 @@ proc main() {.async.} =
       discard await client.deleteTracksFromPlaylist(mirrorPlaylistId,
         tracksBatch.mapIt("spotify:track:" & it.id))
 
-  let tracksToAdd = savedTracks.getTracksUntil(mirrorTracks[0].id)
+  let tracksToAdd = if mirrorTracks.len == 0: savedTracks else: savedTracks.getTracksUntil(mirrorTracks[0].id)
   echo "Tracks to add: ", tracksToAdd
   if tracksToAdd.len != 0:
     for tracksBatch in tracksToAdd.batch(100).reversed():
