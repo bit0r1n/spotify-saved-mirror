@@ -12,4 +12,4 @@ binDir        = "build"
 # Dependencies
 
 requires "nim >= 2.0.2"
-requires "spotify#head"
+requires "https://github.com/bit0r1n/nimspotify"
