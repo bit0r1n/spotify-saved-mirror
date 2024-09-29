@@ -11,8 +11,6 @@ let
   mirrorPlaylistId = spotifyConfig.mirrorPlaylistId.getIdOfBase62(piePlaylist)
   tracksToIgnore = spotifyConfig.ignoreTracks.mapIt(getIdOfBase62(it, pieTrack))
 
-echo spotifyConfig.ignoreTracks
-
 doAssert mirrorPlaylistId.len != 0, "Spotify.mirror_playlist_id in config should be specified"
 
 proc `$`(track: Track): string = &"{track.artists.mapIt(it.name).join(\", \")} - {track.name}"
