@@ -7,7 +7,7 @@ A simple tool to mirror saved tracks to public playlist (i.e. make likes public)
 Run `nimble build` command
 
 ### Running application
-Run `build/mirror_spotify` executable (will require `SPOTIFY_ID` and `SPOTIFY_SECRET` for updating access token)
+Run `build/mirror_spotify` executable (will require `SPOTIFY_ID` and `SPOTIFY_SECRET` environment variables for updating access token in case of expire)
 
 For automatic update you will need to configure `crontab` (in case of Linux) or something else to run application periodically
 
@@ -16,7 +16,7 @@ In `config.ini` you are able to configure
  * `Spotify.mirror_playlist_id` playlist to mirror
    * ID of playlist or Spotify playlist URI (`spotify:playlist:...`). You can get it from link to playlist. ID is a string with length of ~22 symbols after `/playlist/`
  * `Spotify.ignore_tracks` tracks, that you want to keep in mirror playlist, but are missing in saved tracks
-   * List of tracks IDs or Spotify URIs (`spotify:track:...`) separated by commas `,` Getting an ID from link is similar as playlist, but ID is after `/track/`
+   * List of tracks IDs or Spotify URIs (`spotify:track:...`) separated by spaces. Getting an ID from link is similar as playlist, but ID is after `/track/`
 
 ### Retrieve token (and creating config, you only need to do this once)
 First of all, you need to create Spotify Web application for being able to create and update access token

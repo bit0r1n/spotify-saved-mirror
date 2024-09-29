@@ -1,5 +1,5 @@
 import asyncdispatch, sequtils, strformat, strutils, os, algorithm
-import spotify/[ spotifyclient, library, users, playlists, objects/track ]
+import spotify/[ spotifyclient, library, users, playlists, objects/track, objects/error ]
 import auth, config, utils
 
 doAssert (existsEnv("SPOTIFY_ID"), existsEnv("SPOTIFY_SECRET")) == (true, true),
@@ -11,6 +11,8 @@ let
   mirrorPlaylistId = spotifyConfig.mirrorPlaylistId.getIdOfBase62(piePlaylist)
   tracksToIgnore = spotifyConfig.ignoreTracks.mapIt(getIdOfBase62(it, pieTrack))
 
+echo spotifyConfig.ignoreTracks
+
 doAssert mirrorPlaylistId.len != 0, "Spotify.mirror_playlist_id in config should be specified"
 
 proc `$`(track: Track): string = &"{track.artists.mapIt(it.name).join(\", \")} - {track.name}"
@@ -20,8 +22,8 @@ proc getAllPlaylistTracks(client: AsyncSpotifyClient, id: string): Future[seq[Tr
 
   let
     limit = 50
-    tracksResponse = (await client.getPlaylistTracks(
-      playlistId = id, limit = limit, offset = offset)).data
+    tracksResponse = await client.getPlaylistTracks(
+      playlistId = id, limit = limit, offset = offset)
     totalTracks = tracksResponse.total
 
   result.add(tracksResponse.items.mapIt(it.track))
@@ -29,14 +31,14 @@ proc getAllPlaylistTracks(client: AsyncSpotifyClient, id: string): Future[seq[Tr
   while totalTracks > limit + offset:
     offset = offset + limit
     result.add((await client.getPlaylistTracks(
-      playlistId = id, limit = limit, offset = offset)).data.items.mapIt(it.track))
+      playlistId = id, limit = limit, offset = offset)).items.mapIt(it.track))
 
 proc getAllSavedTracks(client: AsyncSpotifyClient): Future[seq[Track]] {.async.} =
   var offset = 0
 
   let
     limit = 50
-    savedTracksResponse = (await client.getSavedTracks(limit = limit, offset = offset)).data
+    savedTracksResponse = await client.getSavedTracks(limit = limit, offset = offset)
     totalTracks = savedTracksResponse.total
 
   result.add(savedTracksResponse.items.mapIt(it.track))
@@ -44,7 +46,7 @@ proc getAllSavedTracks(client: AsyncSpotifyClient): Future[seq[Track]] {.async.}
   while totalTracks > limit + offset:
     offset = offset + limit
     result.add((await client.getSavedTracks(
-      limit = limit, offset = offset)).data.items.mapIt(it.track))
+      limit = limit, offset = offset)).items.mapIt(it.track))
 
 proc getTracksUntil(source: seq[Track], breakId: string): seq[Track] =
   for track in source:
@@ -61,14 +63,16 @@ proc main() {.async.} =
     client = newAsyncSpotifyClient(token)
 
   echo "Checking user for authorization and playlist owner"
-  let
-    selfUser = await client.getCurrentUser()
-    checkPlaylist = await client.getPlaylist(mirrorPlaylistId)
 
-  doAssert selfUser.isSuccess, "Failed to fetch self user"
+  try:
+    let
+      selfUser = await client.getCurrentUser()
+      checkPlaylist = await client.getPlaylist(mirrorPlaylistId)
 
-  doAssert checkPlaylist.isSuccess and checkPlaylist.data.owner.id == selfUser.data.id,
-    "Failed to find playlist or you are not an owner of playlist"
+    doAssert checkPlaylist.owner.id == selfUser.id,
+      "You are not an owner of playlist"
+  except SpotifyError:
+    raise newException(CatchableError, "Failed to fetch self user or to find playlist")
 
   echo "Getting items of liked and public playlists"
   let

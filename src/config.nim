@@ -42,10 +42,9 @@ proc getConfig*[T](): auto =
     )
 
   elif T is SpotifyConfig:
-    let ignoreTracks = dict.getSectionValue(spotifyKey, "ignore_tracks")
     return SpotifyConfig(
       mirrorPlaylistId: dict.getSectionValue(spotifyKey, "mirror_playlist_id"),
-      ignoreTracks: if ignoreTracks.len != 0: ignoreTracks.split(',') else: @[]
+      ignoreTracks: dict.getSectionValue(spotifyKey, "ignore_tracks").splitWhitespace
     )
   else:
     raise newException(CatchableError, "unknown config type")

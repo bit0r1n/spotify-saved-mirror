@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.1.0"
+version       = "0.1.1"
 author        = "bit0r1n"
 description   = "A simple tool to mirror saved tracks to public playlist (i.e. make likes public)"
 license       = "MIT"

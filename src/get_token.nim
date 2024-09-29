@@ -1,4 +1,4 @@
-import httpclient, os, times
+import httpclient, os, times, asyncdispatch
 import spotify/[ spotifyclient, scope ]
 import config
 
@@ -7,7 +7,7 @@ doAssert (existsEnv("SPOTIFY_ID"), existsEnv("SPOTIFY_SECRET")) == (true, true),
 
 var authConfig = getConfig[AuthConfig]()
 
-let token = newHttpClient().authorizationCodeGrant(
+let token = waitFor newAsyncHttpClient().authorizationCodeGrant(
   getEnv("SPOTIFY_ID"),
   getEnv("SPOTIFY_SECRET"),
   @[
@@ -22,4 +22,3 @@ authConfig.createdAt = now().toTime().toUnix()
 saveConfig(authConfig)
 
 echo "Check \"config.ini\" file for received token"
-# echo authConfig
