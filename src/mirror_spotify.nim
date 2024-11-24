@@ -6,14 +6,15 @@ doAssert (existsEnv("SPOTIFY_ID"), existsEnv("SPOTIFY_SECRET")) == (true, true),
   "Missing SPOTIFY_ID or SPOTIFY_SECRET environment variable(s)"
 
 let
-  spotifyConfig = getConfig[SpotifyConfig]()
+  configFilename = if paramCount() > 0: paramStr(1) else: "config.ini"
+  spotifyConfig = getConfig[SpotifyConfig](configFilename)
 
   mirrorPlaylistId = spotifyConfig.mirrorPlaylistId.getIdOfBase62(piePlaylist)
   tracksToIgnore = spotifyConfig.ignoreTracks.mapIt(getIdOfBase62(it, pieTrack))
 
 doAssert mirrorPlaylistId.len != 0, "Spotify.mirror_playlist_id in config should be specified"
 
-proc `$`(track: Track): string = &"{track.artists.mapIt(it.name).join(\", \")} - {track.name}"
+proc `$`(track: Track): string = &"""{track.artists.mapIt(it.name).join(", ")} - {track.name}"""
 
 proc getAllPlaylistTracks(client: AsyncSpotifyClient, id: string): Future[seq[Track]] {.async.} =
   var offset = 0
@@ -56,7 +57,7 @@ proc getTracksUntil(source: seq[Track], breakId: string): seq[Track] =
 
 proc main() {.async.} =
   let
-    authToken = await getToken()
+    authToken = await getToken(configFilename)
     token = newSpotifyToken(authToken, "", "")
     client = newAsyncSpotifyClient(token)
 

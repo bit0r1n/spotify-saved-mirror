@@ -9,8 +9,8 @@ let
   appSecret = getEnv("SPOTIFY_SECRET")
   appScopes = @[ ScopeUserLibraryRead, ScopePlaylistModifyPublic ]
 
-proc getToken*(): Future[string] {.async.} =
-  var authConfig = getConfig[AuthConfig]()
+proc getToken*(configFilename: string): Future[string] {.async.} =
+  var authConfig = getConfig[AuthConfig](configFilename)
 
   if (authConfig.accessToken.len != 0, authConfig.refreshToken.len != 0,
     authConfig.createdAt != 0) != (true, true, true):
@@ -27,6 +27,6 @@ proc getToken*(): Future[string] {.async.} =
     authConfig.accessToken = updatedToken.accessToken
     authConfig.refreshToken = updatedToken.refreshToken
     authConfig.createdAt = now().toTime().toUnix()
-    saveConfig(authConfig)
+    configFilename.saveConfig(authConfig)
 
   return authConfig.accessToken

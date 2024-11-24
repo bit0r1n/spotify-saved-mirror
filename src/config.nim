@@ -1,7 +1,6 @@
 import parsecfg, asyncdispatch, os, strutils
 
 let
-  configFilename = "config.ini"
   authKey = "Auth"
   spotifyKey = "Spotify"
 
@@ -13,9 +12,9 @@ type
     mirrorPlaylistId*: string
     ignoreTracks*: seq[string]
 
-proc getConfig*[T](): auto =
+proc getConfig*[T](filename: string): auto =
   var dict = newConfig()
-  if not fileExists(configFilename):
+  if not fileExists(filename):
     # auth
     dict.setSectionKey(authKey, "access_token", "")
     dict.setSectionKey(authKey, "refresh_token", "")
@@ -25,9 +24,9 @@ proc getConfig*[T](): auto =
     dict.setSectionKey(spotifyKey, "mirror_playlist_id", "")
     dict.setSectionKey(spotifyKey, "ignore_tracks", "")
 
-    dict.writeConfig(configFilename)
+    dict.writeConfig(filename)
   else:
-    dict = loadConfig(configFilename)
+    dict = loadConfig(filename)
 
   when T is AuthConfig:
     let createdAt = try:
@@ -49,10 +48,10 @@ proc getConfig*[T](): auto =
   else:
     raise newException(CatchableError, "unknown config type")
 
-proc saveConfig*[T](config: T) =
-  discard getConfig[T]()
+proc saveConfig*[T](filename: string, config: T) =
+  discard getConfig[T](filename)
 
-  var dict = loadConfig(configFilename)
+  var dict = loadConfig(filename)
 
   when T is AuthConfig:
     dict.setSectionKey(authKey, "access_token", config.accessToken)
@@ -63,4 +62,4 @@ proc saveConfig*[T](config: T) =
     dict.setSectionKey(spotifyKey, "mirror_playlist_id", config.mirrorPlaylistId)
     dict.setSectionKey(spotifyKey, "ignore_tracks", config.ignoreTracks.join(","))
 
-  dict.writeConfig(configFilename)
+  dict.writeConfig(filename)
